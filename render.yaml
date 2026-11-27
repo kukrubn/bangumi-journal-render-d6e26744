@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: bangumi-journal
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: node --env-file-if-exists=/etc/secrets/journal.env node_modules/next/dist/bin/next start --hostname 0.0.0.0
+    healthCheckPath: /manifest.webmanifest
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: JOURNAL_DATABASE_URL
+        sync: false
+      - key: JOURNAL_DEV_OWNER
+        sync: false
+      - key: JOURNAL_DEV_EMAIL
+        sync: false
+      - key: JOURNAL_DEV_PASSWORD_HASH
+        sync: false
+      - key: JOURNAL_DEV_JWT_SECRET
+        generateValue: true
+      - key: BANGUMI_USER_AGENT
+        sync: false

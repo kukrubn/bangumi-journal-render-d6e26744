@@ -1,0 +1,81 @@
+.collection-sync {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.collection-sync h2,
+.sync-caption,
+.sync-actions,
+.sync-history li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.collection-sync h2 {
+  font-size: 1.15rem;
+  font-weight: 680;
+}
+.sync-form {
+  display: flex;
+  align-items: end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.sync-form label {
+  flex: 1;
+  min-width: min(100%, 13rem);
+}
+.sync-job {
+  display: grid;
+  gap: 0.6rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+}
+.sync-job p,
+.sync-history {
+  font-size: 0.9rem;
+}
+.sync-job small,
+.sync-caption span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.sync-caption {
+  justify-content: space-between;
+}
+.sync-actions {
+  flex-wrap: wrap;
+}
+.sync-preview ul {
+  max-height: 20rem;
+  overflow: auto;
+  margin: 0.55rem 0;
+}
+.sync-preview li,
+.sync-history li {
+  border-top: 1px solid var(--line);
+  padding: 0.6rem 0;
+  overflow-wrap: anywhere;
+}
+.sync-preview li small {
+  display: block;
+}
+.sync-preview li label.sync-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.36rem 0;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.sync-choice input {
+  margin-top: 0.2rem;
+}
+.sync-history li {
+  justify-content: space-between;
+}
+.sync-history summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  align-content: center;
+}

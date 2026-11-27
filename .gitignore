@@ -1,0 +1,9 @@
+node_modules/
+.journal-local/
+.next/
+out/
+*.tsbuildinfo
+.env*
+!.env.local.example
+.vercel/
+next-env.d.ts

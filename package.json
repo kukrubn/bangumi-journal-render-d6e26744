@@ -1,0 +1,44 @@
+{
+  "name": "bangumi-journal",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "predev": "node scripts/local-db.mjs",
+    "prestart": "node scripts/local-db.mjs",
+    "db:stop": "node scripts/local-db.mjs --stop",
+    "account:setup": "node scripts/setup-developer.mjs",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --experimental-strip-types --test \"tests/*.test.mts\""
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@supabase/ssr": ">=0.10.0 <1",
+    "@supabase/supabase-js": "^2.99.0",
+    "clsx": "2.1.1",
+    "fflate": "^0.8.2",
+    "lucide-react": ">=0.468.0 <2",
+    "next": "16.4.6",
+    "pg": "^8.23.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.11.2",
+    "server-only": "0.0.1",
+    "tailwind-merge": "3.7.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.3"
+  }
+}

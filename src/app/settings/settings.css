@@ -1,0 +1,20 @@
+.settings-page {
+  max-width: 60rem;
+  display: grid;
+  gap: 1.3rem;
+}
+.settings-page > h1 {
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  font-weight: 740;
+}
+.settings-page > section {
+  padding: clamp(1rem, 2.2vw, 1.65rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  min-width: 0;
+}
+.settings-page h2 {
+  font-weight: 700;
+  font-size: 1.18rem;
+}

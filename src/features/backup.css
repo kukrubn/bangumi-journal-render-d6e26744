@@ -1,0 +1,76 @@
+.backup-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.backup-panel h2,
+.backup-downloads {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.backup-panel h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.backup-downloads {
+  flex-wrap: wrap;
+}
+.backup-upload {
+  max-width: 32rem;
+}
+.backup-panel input[type="file"] {
+  font-size: 0.87rem;
+}
+.restore-preview {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.restore-preview h3 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+.restore-preview p {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.restore-preview fieldset {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.restore-preview legend {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.restore-preview label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+.restore-preview label small {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+}
+.restore-preview input[type="checkbox"] {
+  margin-top: 0.24rem;
+}
+.backup-conflicts,
+.restore-preview ul {
+  max-height: 18rem;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.5rem;
+}
+.restore-preview .btn,
+.backup-panel > button {
+  width: fit-content;
+}
