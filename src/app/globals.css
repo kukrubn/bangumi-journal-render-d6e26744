@@ -32,6 +32,11 @@
 * {
   box-sizing: border-box;
 }
+.join-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1rem 0; }
+.join-email summary { cursor: pointer; color: var(--accent); }
+.join-email label { margin-top: .55rem; }
+.join-help { color: var(--muted); font-size: .9rem; margin: .8rem 0; overflow-wrap: anywhere; }
+.join-help strong { user-select: all; }
 body {
   margin: 0;
   background: var(--bg);

@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import pg from "pg";
+import { checkInvitedAccounts, checkLegacyInviteMigration } from "./invited-accounts.fixture.mts";
 
 const binaryDirectory = process.env.JOURNAL_TEST_PG_BIN;
 
@@ -199,6 +200,9 @@ test(
         } finally {
           await app.end();
         }
+        await checkInvitedAccounts(cfg.runtimeUrl, provisioner, cfg.ownerId);
+        await provisioner.query("create database journal_legacy");
+        await checkLegacyInviteMigration(uri("fixture_admin",adminPassword,"journal_legacy"));
       } finally {
         await provisioner.end();
       }

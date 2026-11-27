@@ -7,7 +7,7 @@ const config: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path((?:api|calendar|library|login|dashboard|settings)(?:/.*)?)",
+        source: "/:path((?:api|calendar|library|login|join|dashboard|settings)(?:/.*)?)",
         headers: [{ key: "Cache-Control", value: "private, no-store" }],
       },
       {

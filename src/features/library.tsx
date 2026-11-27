@@ -1,4 +1,5 @@
 "use client";
+import { displayLoginName } from "@/lib/domain/member-login";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WorkspaceNav } from "@/components/workspace-frame";
 import {
@@ -260,7 +261,7 @@ export function Library({ initial, initialIndex, initialDay, view, ownerId, emai
         <div className="head-inner">
           <Brand />
           <div className="header-tools">
-            {email && <span className="account">{email}</span>}
+            {email && <span className="account">{displayLoginName(email)}</span>}
             <ThemeToggle />
             <button
               className="icon-btn"

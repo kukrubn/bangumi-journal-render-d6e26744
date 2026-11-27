@@ -5,6 +5,7 @@ import { useState, type ReactNode } from "react";
 import { Brand } from "./brand";
 import { ThemeToggle } from "./theme-toggle";
 import { request, message } from "@/lib/client";
+import { displayLoginName } from "@/lib/domain/member-login";
 
 const pages = [
   { view: "library", name: "我的片单", short: "片单", icon: Archive },
@@ -68,7 +69,7 @@ export function WorkspaceFrame({
         <div className="head-inner">
           <Brand />
           <div className="header-tools">
-            <span className="account">{email}</span>
+            <span className="account">{displayLoginName(email)}</span>
             <ThemeToggle />
             <button className="icon-btn" disabled={busy} onClick={logout} aria-label="退出登录">
               <LogOut size={18} />

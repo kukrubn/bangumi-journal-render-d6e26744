@@ -26,12 +26,16 @@ export function connectionOptions(value: string): PoolConfig {
 }
 
 let pool: Pool | undefined;
-export function developerPostgres(url: string, owner: string) {
+export function journalPool(url: string) {
   if (!pool) {
     pool = new Pool(connectionOptions(url));
     pool.on("error", () => console.error("Idle journal database connection closed"));
   }
-  const database = pool;
+  return pool;
+}
+
+export function developerPostgres(url: string, owner: string) {
+  const database = journalPool(url);
   return postgresTransport(owner, async ({ text, values }) => {
     const client = await database.connect();
     let discard = false;

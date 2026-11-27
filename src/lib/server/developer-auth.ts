@@ -1,13 +1,15 @@
 import "server-only";
-import { createHmac, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
-import { promisify } from "node:util";
+import { createHmac } from "node:crypto";
+import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/domain/library";
 import { connectionOptions, developerPostgres } from "./postgres";
+import { accountByEmail, accountByUid } from "./member-store";
+import { issueSession, readSession, sessionLifetime, verifyAccountPassword, type LoginAccount } from "./account-credentials.ts";
+import { isProjectAuthCookie, projectConfig } from "../supabase/config";
 
 export const devCookie = "journal_developer";
-export const sessionLifetime = 7 * 86400;
 export function developerConfig() {
   const email = process.env.JOURNAL_DEV_EMAIL?.trim().toLowerCase();
   const hash = process.env.JOURNAL_DEV_PASSWORD_HASH;
@@ -43,47 +45,44 @@ export function developerConfig() {
   return { email, hash, uid, secret, rest, database: undefined };
 }
 type Config = NonNullable<ReturnType<typeof developerConfig>>;
-const scryptAsync = promisify(scrypt);
-const equal = (a: Buffer, b: Buffer) => a.length === b.length && timingSafeEqual(a, b);
 const signature = (key: string, data: string) =>
   createHmac("sha256", key).update(data).digest("base64url");
-let windowStart = 0,
-  failures = 0;
-export async function verifyPassword(c: Config, password: string) {
-  if (Date.now() - windowStart >= 60000) {
-    windowStart = Date.now();
-    failures = 0;
+
+export async function authenticateDeveloper(c: Config, email: string, password: string) {
+  if (email !== c.email && (Buffer.byteLength(email) > 254 || email.includes("\0")))
+    throw new AppError(401, "邮箱、登录号或密码有误");
+  const account = email === c.email ? c : c.database ? await accountByEmail(c.database, email) : null;
+  // Use the same password derivation for an unknown email to avoid revealing registered accounts.
+  const valid = await verifyAccountPassword(account?.uid ?? null, account?.hash ?? c.hash, password);
+  if (account && !valid) throw new AppError(401, "邮箱、登录号或密码有误");
+  return valid ? account : null;
+}
+
+export function developerSession(c: Config, token: string) {
+  return readSession(c.secret, c, token, (uid) =>
+    c.database ? accountByUid(c.database, uid) : Promise.resolve(null));
+}
+
+export async function setDeveloperSession(req: Request, c: Config, account: LoginAccount) {
+  const jar = await cookies();
+  const cloud = projectConfig();
+  if (cloud) {
+    for (const cookie of jar.getAll()) if (isProjectAuthCookie(cloud.url, cookie.name)) jar.delete(cookie.name);
   }
-  if (failures >= 10) throw new AppError(429, "尝试次数过多，请一分钟后重新登录", 60);
-  failures++;
-  const [salt, hash] = c.hash.split(":");
-  if (Buffer.byteLength(password) > 1024) return false;
-  const candidate = (await scryptAsync(password, Buffer.from(salt, "hex"), 64)) as Buffer;
-  const ok = equal(candidate, Buffer.from(hash, "hex"));
-  if (ok) failures = 0;
-  return ok;
+  jar.set(devCookie, issueSession(c.secret, c.uid, account), {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: sessionLifetime,
+    secure: new URL(req.url).protocol === "https:" || !!process.env.VERCEL || process.env.RENDER === "true",
+  });
 }
-function sessionMac(c: Config, data: string) {
-  return signature(c.secret, ["journal-cookie-v1", c.uid, c.email, c.hash, data].join("|"));
-}
-export function openSession(c: Config) {
-  const data =
-    Math.floor(Date.now() / 1000) + sessionLifetime + "." + randomBytes(18).toString("hex");
-  return data + "." + sessionMac(c, data);
-}
-export function validSession(c: Config, token: string) {
-  if (!/^\d{10}\.[0-9a-f]{36}\.[\w-]{43}$/.test(token)) return false;
-  const [expiry, nonce, mac] = token.split(".");
-  return (
-    Number(expiry) > Date.now() / 1000 &&
-    equal(Buffer.from(mac), Buffer.from(sessionMac(c, expiry + "." + nonce)))
-  );
-}
-export function developerDb(c: Config) {
+
+export function developerDb(c: Config, uid: string = c.uid) {
   if (c.database !== undefined) {
     return createClient<Database>("https://journal.invalid", "journal", {
       accessToken: async () => "journal",
-      global: { fetch: developerPostgres(c.database, c.uid) },
+      global: { fetch: developerPostgres(c.database, uid) },
     });
   }
   const encode = (value: object) => Buffer.from(JSON.stringify(value)).toString("base64url");
@@ -97,7 +96,7 @@ export function developerDb(c: Config) {
           encode({ alg: "HS256", typ: "JWT" }) +
           "." +
           encode({
-            sub: c.uid,
+            sub: uid,
             role: "authenticated",
             aud: "authenticated",
             iat: now,

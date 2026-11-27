@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { AppError } from "@/lib/domain/library";
-import { requireOwner, serverDb } from "@/lib/supabase/server";
+import { canManageInvites, requireOwner, serverDb } from "@/lib/supabase/server";
+import { displayLoginName } from "@/lib/domain/member-login";
+import { InvitePanel } from "@/features/invite-panel";
 import { WorkspaceFrame } from "@/components/workspace-frame";
 import { BackupPanel } from "@/features/backup-panel";
 import { SyncPanel } from "@/features/sync-panel";
@@ -16,6 +18,13 @@ export default async function SettingsPage() {
       <WorkspaceFrame view="settings" email={actor.email}>
         <div className="settings-page">
           <h1>设置与数据</h1>
+          <section className="account-settings">
+            <h2>我的账号</h2>
+            <p>
+              登录名 <strong>{displayLoginName(actor.email)}</strong>
+            </p>
+          </section>
+          {canManageInvites(actor) && <InvitePanel />}
           <SyncPanel />
           <BackupPanel />
           <InstallApp />

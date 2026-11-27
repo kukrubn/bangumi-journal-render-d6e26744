@@ -5,21 +5,28 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/domain/library";
 import { projectConfig } from "./config";
-import { developerConfig, developerDb, devCookie, validSession } from "@/lib/server/developer-auth";
+import { developerConfig, developerDb, devCookie, developerSession } from "@/lib/server/developer-auth";
 
 export type Db = SupabaseClient<Database>;
 export type Owner = { db: Db; uid: string; email: string };
-const developerOwners = new WeakMap<Db, { uid: string; email: string }>();
+const developerOwners = new WeakMap<Db, { uid: string; email: string; inviteAdmin: boolean }>();
+export function canManageInvites(actor: Owner): boolean {
+  const session = developerOwners.get(actor.db);
+  return !!session?.inviteAdmin && session.uid === actor.uid;
+}
 export async function serverDb(writeHeaders?: Headers): Promise<Db> {
   const jar = await cookies();
   const developer = developerConfig();
-  if (developer && validSession(developer, jar.get(devCookie)?.value ?? "")) {
-    const db = developerDb(developer);
-    developerOwners.set(db, { uid: developer.uid, email: developer.email });
-    return db;
+  if (developer) {
+    const session = await developerSession(developer, jar.get(devCookie)?.value ?? "");
+    if (session) {
+      const db = developerDb(developer, session.uid);
+      developerOwners.set(db, { uid: session.uid, email: session.email, inviteAdmin: session === developer && !!developer.database });
+      return db;
+    }
   }
   if (developer && !projectConfig()) throw new AppError(401, "请登录后使用片单");
-  if (process.env.JOURNAL_DATABASE_URL) throw new AppError(503, "请检查开发者账号和云数据库配置");
+  if (!developer && process.env.JOURNAL_DATABASE_URL) throw new AppError(503, "请检查开发者账号和云数据库配置");
   return cloudDb(writeHeaders);
 }
 export async function cloudDb(writeHeaders?: Headers): Promise<Db> {
@@ -62,7 +69,7 @@ export async function requireOwner(db: Db): Promise<Owner> {
     const owner = await db.rpc("is_app_owner");
     if (owner.error) databaseError(owner.error);
     if (!owner.data) throw new AppError(403, "开发者账号未绑定到这份片单");
-    return { db, ...developer };
+    return { db, uid: developer.uid, email: developer.email };
   }
   const { data, error } = await db.auth.getClaims();
   if (error && (error.status ?? 0) >= 500) throw new AppError(503, "登录服务暂时不可用");
