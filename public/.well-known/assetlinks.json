@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "sha256_cert_fingerprints": [
+        "50:E1:F4:B9:14:FF:C6:CF:6F:DD:CA:49:D4:00:D9:26:09:A5:75:C3:67:70:66:94:85:3D:95:15:D7:B2:A5:2B"
+      ],
+      "package_name": "io.github.kukrubn.bangumijournal",
+      "namespace": "android_app"
+    }
+  }
+]

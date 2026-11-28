@@ -1,5 +1,7 @@
 # 番剧手账
 
+安卓手机可直接[下载「番剧手账」安装包](https://bangumi-journal.onrender.com/downloads/bangumi-journal-android.apk)。使用与网页版相同的账号即可同步。构建说明见[安卓版](android/README.md)。
+
 每个账号都有独立片单的追番 PWA。电脑上整理收藏，手机上点 `+1`、记书签，两端登录同一个站点，刷新就能看到自己的进度。应用使用 Next.js、TypeScript 和 PostgreSQL，附带 Render 与 Neon 的部署配置。
 
 ## 可以做什么

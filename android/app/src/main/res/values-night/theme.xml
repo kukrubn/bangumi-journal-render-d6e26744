@@ -1,0 +1,9 @@
+<resources>
+    <color name="paper">#141D19</color>
+    <color name="accent">#96D4AF</color>
+    <style name="JournalTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+</resources>

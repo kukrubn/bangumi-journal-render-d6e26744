@@ -1,0 +1,37 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.kukrubn.bangumijournal'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'io.github.kukrubn.bangumijournal'
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        if (System.getenv('JOURNAL_ANDROID_KEYSTORE')) {
+            releaseKey {
+                storeFile file(System.getenv('JOURNAL_ANDROID_KEYSTORE'))
+                storePassword System.getenv('JOURNAL_ANDROID_SIGNING_PASSWORD')
+                keyAlias 'journal-release'
+                keyPassword System.getenv('JOURNAL_ANDROID_SIGNING_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            if (signingConfigs.findByName('releaseKey')) {
+                signingConfig signingConfigs.releaseKey
+            }
+        }
+    }
+}

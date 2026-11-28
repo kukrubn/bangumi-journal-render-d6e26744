@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">番剧手账</string>
+    <color name="paper">#F5F7F2</color>
+    <color name="accent">#185549</color>
+    <color name="icon_background">#1E5C4D</color>
+    <style name="JournalTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+</resources>

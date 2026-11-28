@@ -6,21 +6,33 @@ interface InstallPrompt extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
-type InstallState = { start?: () => Promise<void>; installed: boolean; hint: string };
+type InstallState = {
+  start?: () => Promise<void>;
+  installed: boolean;
+  androidBrowser: boolean;
+  hint: string;
+};
 const InstallContext = createContext<InstallState>({
   installed: false,
+  androidBrowser: false,
   hint: "可在浏览器菜单中安装到设备。",
 });
 
 export function PwaProvider({ children }: { children: ReactNode }) {
   const [prompt, setPrompt] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
+  const [androidBrowser, setAndroidBrowser] = useState(false);
   const [hint, setHint] = useState("可在浏览器菜单中安装到设备。");
   useEffect(() => {
+    const ua = navigator.userAgent;
+    const androidApp = ua.includes("BangumiJournalAndroid/");
+    setAndroidBrowser(/Android/i.test(ua) && !androidApp);
     const mode = window.matchMedia("(display-mode: standalone)");
     const inApp = () =>
       setInstalled(
-        mode.matches || (navigator as Navigator & { standalone?: boolean }).standalone === true,
+        androidApp ||
+          mode.matches ||
+          (navigator as Navigator & { standalone?: boolean }).standalone === true,
       );
     const onPrompt = (event: Event) => {
       event.preventDefault();
@@ -38,7 +50,6 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     if (!window.isSecureContext) {
       setHint("手机安装请通过 HTTPS 打开此应用；电脑本机可用 localhost。");
     } else if ("serviceWorker" in navigator) {
-      const ua = navigator.userAgent;
       const ios =
         /iPad|iPhone|iPod/i.test(ua) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -71,23 +82,39 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     }
   }
   return (
-    <InstallContext.Provider value={{ installed, hint, start: prompt ? start : undefined }}>
+    <InstallContext.Provider
+      value={{ installed, androidBrowser, hint, start: prompt ? start : undefined }}
+    >
       {children}
     </InstallContext.Provider>
   );
 }
 
 export function InstallApp() {
-  const { start, hint, installed } = useContext(InstallContext);
+  const { start, hint, installed, androidBrowser } = useContext(InstallContext);
   return (
     <section className="install-panel" aria-label="应用安装">
-      <h2>安装到设备</h2>
-      <p>{installed ? "应用已在独立窗口中打开，安装已完成。" : hint}</p>
-      {start && !installed && (
-        <button className="btn primary" type="button" onClick={() => void start()}>
-          <Download size={16} />
-          安装番剧手账
-        </button>
+      <h2>{installed ? "应用已安装" : "安装到设备"}</h2>
+      {!installed && <p>{hint}</p>}
+      {!installed && (androidBrowser || start) && (
+        <div className="actions">
+          {androidBrowser && (
+            <a className="btn primary" href="/downloads/bangumi-journal-android.apk" download>
+              <Download size={16} />
+              下载安卓版 APK
+            </a>
+          )}
+          {start && (
+            <button
+              className={androidBrowser ? "btn neutral" : "btn primary"}
+              type="button"
+              onClick={() => void start()}
+            >
+              <Download size={16} />
+              {androidBrowser ? "安装网页版" : "安装番剧手账"}
+            </button>
+          )}
+        </div>
       )}
     </section>
   );
